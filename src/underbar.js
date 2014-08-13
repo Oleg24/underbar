@@ -156,7 +156,7 @@ var _ = {};
    * as an example of this.
    */
 
-  // Takes an array of objects and returns and array of the values of
+  // Takes an array of objects and returns an array of the values of
   // a certain property in it. E.g. take an array of people and return
   // an array of just their ages
   _.pluck = function(collection, key) {
@@ -169,7 +169,7 @@ var _ = {};
   };
 
   // Calls the method named by functionOrKey on each value in the list.
-  // Note: you will nead to learn a bit about .apply to complete this.
+  // Note: you will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
 	return _.map(collection, function(value){
 		if (typeof(functionOrKey) === 'function') {
@@ -193,9 +193,17 @@ var _ = {};
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
+  
   _.reduce = function(collection, iterator, accumulator) {
+	if(accumulator === undefined){
+		accumulator = collection[0];
+		}
+	_.each(collection, function(value){
+		accumulator = iterator(accumulator,value);
+	});
+	return accumulator
   };
-
+	
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
@@ -212,12 +220,36 @@ var _ = {};
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+	/*if(collection.length === 0)
+		return true;
+	*/
+	if(iterator === undefined){
+		iterator=_.identity
+		}
+	return _.reduce(collection, function(trueTest, item){
+		if(!trueTest) {
+			return false;
+			} else {
+		 return iterator(item) ? true : false ;
+		 }
+		 }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+		if(iterator === undefined){
+		iterator=_.identity
+		}
+		return _.reduce(collection, function(trueTest, item){
+			if(trueTest){
+				return true;
+				} else {
+				return iterator(item) ? true : false;
+				}
+				}, false);
+	// Figure out a way to use _.every			
   };
 
 
@@ -240,12 +272,29 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+	function addKeyToObj(val,key){
+		obj[key] = val;
+		}
+	for(var i = 0, x=arguments.length; i<x; i++){
+		_.each(arguments[i], addKeyToObj);
+		}
+	return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+	function addKeyToObj(val,key){
+		if(!obj.hasOwnProperty(key)){
+			obj[key] = val;
+			}
+		}
+	for(var i = 0, x=arguments.length; i<x; i++){
+		_.each(arguments[i], addKeyToObj);
+		}
+	return obj;
   };
+
 
 
   /**
